@@ -42,6 +42,7 @@ test('Gravity worker advances, edits, duplicates, removes, saves, loads and expo
 }) => {
   await page.goto('/#gravity');
   await expect(page.getByRole('heading', { name: 'A universe of your making.' })).toBeVisible();
+  await expect(page.locator('.gravity-settings')).toContainText('0.0002 yr');
   await page.getByRole('button', { name: 'Run gravity', exact: true }).click();
   await expect(page.locator('.mono')).not.toHaveText('0.000 yr');
   await page.getByRole('button', { name: 'Pause gravity', exact: true }).click();

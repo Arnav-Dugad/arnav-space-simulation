@@ -67,7 +67,7 @@ export function Range({
       <span>
         {label}
         <b>
-          {value.toLocaleString()} {unit}
+          {value.toLocaleString(undefined, { maximumFractionDigits: 8 })} {unit}
         </b>
       </span>
       <input
