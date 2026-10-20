@@ -1,0 +1,728 @@
+{
+  "title": "JPL Horizons geometric reference vectors",
+  "retrievedAt": "2026-10-20T08:39:54.883Z",
+  "source": "https://ssd.jpl.nasa.gov/horizons/",
+  "apiDocumentation": "https://ssd-api.jpl.nasa.gov/doc/horizons.html",
+  "frame": "J2000 mean ecliptic, ICRF X axis",
+  "units": "AU and AU/day",
+  "timeScale": "UTC; Horizons TIME_TYPE=UT, epochs after 1962",
+  "corrections": "NONE: geometric positions, no light time or aberration",
+  "notes": [
+    "Mercury, Venus, Earth and Mars use body centers. Outer planets use system barycenters, matching JPL approximate-element intent; center/barycenter differences remain part of a comparison with planet-center engine vectors.",
+    "The educational Earth orbit in orbital.ts represents Earth-Moon barycenter; comparison against Earth center includes lunar displacement.",
+    "Five sparse epochs are validation samples, not an accuracy guarantee across the full date range. Horizons uses IAU76 ecliptic obliquity; Astronomy Engine uses its J2000 mean-ecliptic conversion, a very small frame difference."
+  ],
+  "targets": [
+    {
+      "id": "mercury",
+      "targetId": "199",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27199%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            -0.1300777328324658,
+            -0.4472924077888585,
+            -0.02460015509549487
+          ],
+          "velocityAUPerDay": [
+            0.02136667739451398,
+            -0.006447021044909608,
+            -0.002487810139999773
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            0.05087988459358879,
+            0.302679361039845,
+            0.02006098120861427
+          ],
+          "velocityAUPerDay": [
+            -0.0333867501679499,
+            0.005705693143390332,
+            0.003529700007623537
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            -0.2746482483492179,
+            0.2003449386080061,
+            0.04156425871553346
+          ],
+          "velocityAUPerDay": [
+            -0.0223249141802679,
+            -0.02156619565365465,
+            0.0002853199158411731
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            0.332699750128161,
+            -0.2159939565637634,
+            -0.04816591914725681
+          ],
+          "velocityAUPerDay": [
+            0.009790462501792817,
+            0.02489059354944693,
+            0.001136218098094766
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            -0.1795372998125292,
+            0.267800095103431,
+            0.03834948048137326
+          ],
+          "velocityAUPerDay": [
+            -0.02904417817464458,
+            -0.01458065629675795,
+            0.001470056175438408
+          ]
+        }
+      ]
+    },
+    {
+      "id": "venus",
+      "targetId": "299",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27299%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            -0.7183017032914344,
+            -0.03266938488657987,
+            0.04101394173569691
+          ],
+          "velocityAUPerDay": [
+            0.0007985401842231983,
+            -0.02029519948471197,
+            -0.0003234756495721687
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            0.05336102875940112,
+            -0.7251663838198015,
+            -0.01301011166492387
+          ],
+          "velocityAUPerDay": [
+            0.02003523385629108,
+            0.001411208913706088,
+            -0.001136949720353909
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            -0.7152407894387921,
+            -0.07659296872215922,
+            0.04021809293508005
+          ],
+          "velocityAUPerDay": [
+            0.002029646306156885,
+            -0.02020118060813637,
+            -0.0003945437334874161
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            0.6627129139427786,
+            0.2915258708520372,
+            -0.03423164430902011
+          ],
+          "velocityAUPerDay": [
+            -0.008210070941918734,
+            0.01842559837524252,
+            0.0007269044930479264
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            0.1417979997166355,
+            -0.7133811142906912,
+            -0.01802653489686959
+          ],
+          "velocityAUPerDay": [
+            0.01970193797557366,
+            0.003873438906099952,
+            -0.00108293163254135
+          ]
+        }
+      ]
+    },
+    {
+      "id": "earth",
+      "targetId": "399",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27399%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            -0.1771478822733411,
+            0.967239340121059,
+            -0.000004085203551709195
+          ],
+          "velocityAUPerDay": [
+            -0.01720758492418282,
+            -0.003159006535002814,
+            1.050908513009135e-7
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            -0.1760309650157352,
+            0.9674180942752726,
+            -0.00002188395569536763
+          ],
+          "velocityAUPerDay": [
+            -0.01719870070750749,
+            -0.003142993542518318,
+            8.263145590756646e-7
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            -0.1658650466714179,
+            0.9692284116481021,
+            -0.00005491469696640825
+          ],
+          "velocityAUPerDay": [
+            -0.01723484716981443,
+            -0.002960905263571348,
+            6.840350402366698e-7
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            0.893240485892046,
+            0.4404434019696076,
+            -0.00003148139036223265
+          ],
+          "velocityAUPerDay": [
+            -0.007892340947125015,
+            0.01536135902019211,
+            -0.000001497156852054645
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            -0.1716259552364023,
+            0.9682563579464609,
+            -0.0001099662491510984
+          ],
+          "velocityAUPerDay": [
+            -0.01721798122036714,
+            -0.003074400576634578,
+            9.983678045646058e-7
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mars",
+      "targetId": "499",
+      "centerId": "10",
+      "kernel": "mar099",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27499%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            1.390716420540513,
+            -0.01340503601099096,
+            -0.03446743868694697
+          ],
+          "velocityAUPerDay": [
+            0.0006713859679472616,
+            0.01518724919393708,
+            0.0003016545858278642
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            -0.7296804531255201,
+            1.454281924552411,
+            0.04839002215485313
+          ],
+          "velocityAUPerDay": [
+            -0.01197724515344227,
+            -0.005087078818376806,
+            0.0001875169854916348
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            -0.293346878268597,
+            -1.451124362815018,
+            -0.02321592591331777
+          ],
+          "velocityAUPerDay": [
+            0.01424346891000696,
+            -0.001572073127108684,
+            -0.0003823248503171006
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            -0.128263342358581,
+            1.575327763047221,
+            0.03615811786031726
+          ],
+          "velocityAUPerDay": [
+            -0.01341745980941963,
+            0.00005267328449005231,
+            0.0003300994497422965
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            -1.543227794711077,
+            -0.503599213459202,
+            0.02720163458385357
+          ],
+          "velocityAUPerDay": [
+            0.004861883170799696,
+            -0.01210502390917741,
+            -0.0003727394522866803
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jupiter",
+      "targetId": "5",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%275%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            4.00117376746374,
+            2.938580893423763,
+            -0.1017852204879746
+          ],
+          "velocityAUPerDay": [
+            -0.0045683207158391,
+            0.006443200730285099,
+            0.00007557970298105183
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            4.509066862339533,
+            -2.166475983413854,
+            -0.09190946709560718
+          ],
+          "velocityAUPerDay": [
+            0.003176954931010943,
+            0.00716693879845527,
+            -0.0001008517643029264
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            3.493165528437812,
+            3.555047158938666,
+            -0.09292060641007144
+          ],
+          "velocityAUPerDay": [
+            -0.005474903286492506,
+            0.005649462796957207,
+            0.00009902065185856593
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            -3.598944505157941,
+            3.907977548270571,
+            0.0642878144806775
+          ],
+          "velocityAUPerDay": [
+            -0.005643324043860147,
+            -0.004764027064128865,
+            0.0001460551100845167
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            -2.391051804115,
+            4.664071571435826,
+            0.03396577467242754
+          ],
+          "velocityAUPerDay": [
+            -0.006817671845047384,
+            -0.003096756687202034,
+            0.000165414059344755
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saturn",
+      "targetId": "6",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%276%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            6.406405670875909,
+            6.569992506907766,
+            -0.3690763497680222
+          ],
+          "velocityAUPerDay": [
+            -0.004292353704245661,
+            0.003890313818272784,
+            0.0001029479549715504
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            -9.464258847488423,
+            0.2586807088381963,
+            0.3722104457816379
+          ],
+          "velocityAUPerDay": [
+            -0.0004493467320916648,
+            -0.005583323251246686,
+            0.0001151585051558479
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            8.996075157123913,
+            -3.716153461893643,
+            -0.293404895671369
+          ],
+          "velocityAUPerDay": [
+            0.001816670920382671,
+            0.00515110140195464,
+            -0.0001619249319588923
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            9.232820049076516,
+            1.870442839777572,
+            -0.4000976281650852
+          ],
+          "velocityAUPerDay": [
+            -0.001416975322562294,
+            0.00545354336645821,
+            -0.00003858463208792339
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            4.766229100478367,
+            -8.77371781123867,
+            -0.03787694888127267
+          ],
+          "velocityAUPerDay": [
+            0.004594509329577745,
+            0.002649474484715298,
+            -0.0002291045386421327
+          ]
+        }
+      ]
+    },
+    {
+      "id": "uranus",
+      "targetId": "7",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%277%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            14.43185860386393,
+            -13.73431948330723,
+            -0.2381417062016511
+          ],
+          "velocityAUPerDay": [
+            0.002678105183752006,
+            0.002672696271923629,
+            -0.00002477205677516236
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            20.03662191849571,
+            -1.532725889242916,
+            -0.2652310387284457
+          ],
+          "velocityAUPerDay": [
+            0.0002737889312091594,
+            0.00374383127311518,
+            0.00001031533990032899
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            12.27098960281853,
+            15.30029598315998,
+            -0.1022652279147268
+          ],
+          "velocityAUPerDay": [
+            -0.003102537952273514,
+            0.002283846376186998,
+            0.00004863151589572431
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            8.863631787393677,
+            17.2992170019269,
+            -0.05067931663610194
+          ],
+          "velocityAUPerDay": [
+            -0.003535246315461222,
+            0.001607754087183283,
+            0.00005182903231380117
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            -17.82323714394458,
+            4.071479796358961,
+            0.2458503386303537
+          ],
+          "velocityAUPerDay": [
+            -0.0009101960740701862,
+            -0.00402153749670698,
+            -0.000003110855363424339
+          ]
+        }
+      ]
+    },
+    {
+      "id": "neptune",
+      "targetId": "8",
+      "centerId": "10",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%278%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%4010%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            16.81204888411637,
+            -24.99176156927964,
+            0.1272228086719434
+          ],
+          "velocityAUPerDay": [
+            0.002579274117446512,
+            0.001776901015368217,
+            -0.00009590961585877425
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            24.81715429064525,
+            -16.89757655298741,
+            -0.2239416084419185
+          ],
+          "velocityAUPerDay": [
+            0.001748912120803204,
+            0.002618824574618271,
+            -0.00009412274675016617
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            29.84298156819611,
+            -1.790902940643667,
+            -0.6508484001998662
+          ],
+          "velocityAUPerDay": [
+            0.0001627720449019864,
+            0.003159150240844675,
+            -0.00006872924641535295
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            29.83425545444754,
+            1.440038529143816,
+            -0.7171773178521039
+          ],
+          "velocityAUPerDay": [
+            -0.0001774465723819373,
+            0.003151466872659459,
+            -0.00006087344639323952
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            17.39819675078543,
+            24.19778546788183,
+            -0.8992417960860055
+          ],
+          "velocityAUPerDay": [
+            -0.002572493061921565,
+            0.001850343520514543,
+            0.00002110076840615652
+          ]
+        }
+      ]
+    },
+    {
+      "id": "moon",
+      "targetId": "301",
+      "centerId": "399",
+      "kernel": "DE441",
+      "query": "https://ssd.jpl.nasa.gov/api/horizons.api?format=json&COMMAND=%27301%27&OBJ_DATA=%27NO%27&MAKE_EPHEM=%27YES%27&EPHEM_TYPE=%27VECTORS%27&CENTER=%27500%40399%27&TLIST=%272451545+2455197.5+2460310.5+2461333.5+2469807.5%27&OUT_UNITS=%27AU-D%27&REF_PLANE=%27ECLIPTIC%27&REF_SYSTEM=%27ICRF%27&VEC_CORR=%27NONE%27&VEC_TABLE=%272%27&CSV_FORMAT=%27YES%27&TIME_TYPE=%27UT%27",
+      "samples": [
+        {
+          "date": "2000-01-01T12:00:00Z",
+          "julianDayUTC": 2451545,
+          "positionAU": [
+            -0.001949005522028226,
+            -0.001838439640328155,
+            0.0002424530340027334
+          ],
+          "velocityAUPerDay": [
+            0.0003717380229989678,
+            -0.0004221160397596232,
+            -0.00000665391883617466
+          ]
+        },
+        {
+          "date": "2010-01-01T00:00:00Z",
+          "julianDayUTC": 2455197.5,
+          "positionAU": [
+            -0.0005444364148150027,
+            0.002339512114544032,
+            0.00003026742958552015
+          ],
+          "velocityAUPerDay": [
+            -0.0006116392915732775,
+            -0.0001525480796772114,
+            -0.00005793214605682234
+          ]
+        },
+        {
+          "date": "2024-01-01T00:00:00Z",
+          "julianDayUTC": 2460310.5,
+          "positionAU": [
+            -0.002459800218841239,
+            0.00111279133084301,
+            0.0001682725625094574
+          ],
+          "velocityAUPerDay": [
+            -0.000236570789615351,
+            -0.000505756608249677,
+            -0.00003423466712468796
+          ]
+        },
+        {
+          "date": "2026-10-20T00:00:00Z",
+          "julianDayUTC": 2461333.5,
+          "positionAU": [
+            0.00174196145437736,
+            -0.002016562625655704,
+            -0.00006888525084787097
+          ],
+          "velocityAUPerDay": [
+            0.0004112313534612244,
+            0.0003867440321080635,
+            0.00004882036018603123
+          ]
+        },
+        {
+          "date": "2050-01-01T00:00:00Z",
+          "julianDayUTC": 2469807.5,
+          "positionAU": [
+            0.002403525571171275,
+            0.0007797196057837638,
+            0.0001496183664658434
+          ],
+          "velocityAUPerDay": [
+            -0.000152715090214257,
+            0.0005760993995264864,
+            -0.00003895699860492648
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-name: Validate Orbitarium
+name: Validate Arnav Space Simulation
 on: [push, pull_request]
 permissions:
   contents: read

@@ -1,14 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Rocket, Info } from 'lucide-react';
 import { AU_KM, planets } from '../data/planets';
 import { hohmann, propellant, solveKepler } from '../simulation/orbital';
 import { Metric, Range } from '../components/UI';
+import MissionExtensions from '../components/MissionExtensions';
 export default function MissionPlanner() {
+  const [animating, setAnimating] = useState(false);
   const [departure, setDeparture] = useState('earth'),
     [destination, setDestination] = useState('mars');
   const [mass, setMass] = useState(1000),
     [isp, setIsp] = useState(450),
     [progress, setProgress] = useState(0);
+  useEffect(() => {
+    if (!animating) return;
+    const timer = setInterval(() => setProgress((p) => (p + 1) % 101), 50);
+    return () => clearInterval(timer);
+  }, [animating]);
   const origin = planets.find((p) => p.id === departure)!,
     target = planets.find((p) => p.id === destination)!;
   const transfer = hohmann(origin.elements[0] * AU_KM, target.elements[0] * AU_KM);
@@ -157,6 +164,9 @@ export default function MissionPlanner() {
             </text>
           </svg>
           <div className="trajectory-scrub">
+            <button className="text-button" onClick={() => setAnimating(!animating)}>
+              {animating ? 'Pause transfer' : 'Animate transfer'}
+            </button>
             <Range
               label="Explore transfer"
               value={progress}
@@ -187,6 +197,7 @@ export default function MissionPlanner() {
         heliocentric burns. Phase angle is measured prograde from departure to destination. This is
         an educational estimate, not a mission-grade design.
       </p>
+      <MissionExtensions origin={origin} target={target} mass={mass} isp={isp} />
     </div>
   );
 }

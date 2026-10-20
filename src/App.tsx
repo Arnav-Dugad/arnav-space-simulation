@@ -26,25 +26,38 @@ import {
   Compass,
   Check,
   ArrowRight,
+  FlaskConical,
+  Database,
 } from 'lucide-react';
-import { planets, AU_KM, DAY_MS, MU_SUN, MIN_DATE, MAX_DATE } from './data/planets';
-import { orbitPosition, elementsAt } from './simulation/orbital';
+import { planets, AU_KM, DAY_MS, MIN_DATE, MAX_DATE } from './data/planets';
+import { elementsAt } from './simulation/orbital';
 import { Modal, Metric, Toggle } from './components/UI';
+import DockPanel from './components/DockPanel';
+import ExplorerTools from './components/ExplorerTools';
+import { ephemerisPosition } from './simulation/ephemeris';
+import { savedExperiments } from './utils/experiments';
+import { shareConfiguration } from './utils/export';
 import type { SceneSettings } from './scenes/SolarScene';
 const SolarScene = lazy(() => import('./scenes/SolarScene'));
 const GravityLab = lazy(() => import('./pages/GravityLab'));
 const MissionPlanner = lazy(() => import('./pages/MissionPlanner'));
 const Compare = lazy(() => import('./pages/Compare'));
-type Page = 'explore' | 'gravity' | 'missions' | 'compare';
+const ScienceLabs = lazy(() => import('./pages/ScienceLabs'));
+const CatalogExplorer = lazy(() => import('./pages/CatalogExplorer'));
+type Page = 'explore' | 'gravity' | 'missions' | 'compare' | 'labs' | 'catalog';
 const navigation = [
   { id: 'explore' as const, label: 'Solar System', icon: Telescope, caption: 'Explore' },
   { id: 'gravity' as const, label: 'Gravity Sandbox', icon: Atom, caption: 'Experiment' },
   { id: 'missions' as const, label: 'Mission Planner', icon: Rocket, caption: 'Discover' },
   { id: 'compare' as const, label: 'Compare Worlds', icon: ArrowLeftRight, caption: 'Perspective' },
+  { id: 'labs' as const, label: 'Science Labs', icon: FlaskConical, caption: 'Investigate' },
+  { id: 'catalog' as const, label: 'Data Explorer', icon: Database, caption: 'Observe' },
 ];
 function stored<T>(key: string, fallback: T): T {
   try {
-    const value = localStorage.getItem(key);
+    const value =
+      localStorage.getItem(key) ??
+      localStorage.getItem(key.replace('arnav-space-simulation', 'orbitarium'));
     return value ? JSON.parse(value) : fallback;
   } catch {
     return fallback;
@@ -70,6 +83,7 @@ const speeds = [
 ];
 export default function App() {
   const [page, setPage] = useState<Page>(initialPage);
+  const [routeHash, setRouteHash] = useState(() => location.hash);
   const [selected, setSelected] = useState(() =>
     planets.some((p) => p.id === location.hash.split('/')[1])
       ? location.hash.split('/')[1]
@@ -81,18 +95,25 @@ export default function App() {
     [reverse, setReverse] = useState(false);
   const [settings, setSettings] = useState<SceneSettings>(() => ({
     ...defaultSettings,
-    ...stored('orbitarium-settings', {}),
+    ...stored('arnav-space-simulation-settings', {}),
   }));
   const [cameraMode, setCameraMode] = useState('follow'),
     [cameraKey, setCameraKey] = useState(0);
   const [modal, setModal] = useState<'search' | 'settings' | 'credits' | 'favorites' | null>(null),
     [query, setQuery] = useState(''),
-    [favorites, setFavorites] = useState<string[]>(() => stored('orbitarium-favorites', [])),
+    [favorites, setFavorites] = useState<string[]>(() =>
+      stored('arnav-space-simulation-favorites', []),
+    ),
     [toast, setToast] = useState(''),
     [tour, setTour] = useState(false),
     [fullscreen, setFullscreen] = useState(false),
     [tab, setTab] = useState('overview');
   const notify = useCallback((text: string) => setToast(text), []);
+  useEffect(() => {
+    const focus = () => setCameraMode('follow');
+    addEventListener('ass:focus-moon', focus);
+    return () => removeEventListener('ass:focus-moon', focus);
+  }, []);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(''), 4500);
@@ -113,6 +134,7 @@ export default function App() {
   }, []);
   useEffect(() => {
     const onHash = () => {
+      setRouteHash(location.hash);
       setPage(initialPage());
       const id = location.hash.split('/')[1];
       if (planets.some((p) => p.id === id)) setSelected(id);
@@ -122,14 +144,14 @@ export default function App() {
   }, []);
   useEffect(() => {
     try {
-      localStorage.setItem('orbitarium-settings', JSON.stringify(settings));
+      localStorage.setItem('arnav-space-simulation-settings', JSON.stringify(settings));
     } catch {
       /* Session-only settings remain usable. */
     }
   }, [settings]);
   useEffect(() => {
     try {
-      localStorage.setItem('orbitarium-favorites', JSON.stringify(favorites));
+      localStorage.setItem('arnav-space-simulation-favorites', JSON.stringify(favorites));
     } catch {
       /* Favorites remain in memory. */
     }
@@ -178,11 +200,21 @@ export default function App() {
     return () => document.removeEventListener('fullscreenchange', change);
   }, []);
   const planet = planets.find((p) => p.id === selected)!;
-  const position = orbitPosition(planet, date);
-  const distance = Math.hypot(...position),
-    a = elementsAt(planet, date)[0];
-  const velocity = Math.sqrt(MU_SUN * (2 / (distance * AU_KM) - 1 / (a * AU_KM)));
-  const patch = (patch: Partial<SceneSettings>) => setSettings((s) => ({ ...s, ...patch }));
+  const position = ephemerisPosition(planet.id, date);
+  const distance = Math.hypot(...position);
+  const before = ephemerisPosition(planet.id, date - 30000),
+    after = ephemerisPosition(planet.id, date + 30000);
+  const velocity = Math.hypot(...after.map((v, i) => ((v - before[i]) * AU_KM) / 60));
+  const patch = (patch: Partial<SceneSettings>) =>
+    setSettings((s) => ({
+      ...s,
+      ...patch,
+      bodyScale:
+        patch.trueScale === false && s.bodyScale === 'physical'
+          ? 'educational'
+          : (patch.bodyScale ?? s.bodyScale),
+      trueScale: patch.bodyScale === 'physical' ? true : (patch.trueScale ?? s.trueScale),
+    }));
   const match = (name: string) => {
     const q = query.toLowerCase().replace(/[^a-z0-9]/g, '');
     let index = 0;
@@ -202,7 +234,7 @@ export default function App() {
         <a className="wordmark" href="#explore" onClick={() => navigate('explore')}>
           <Orbit size={29} strokeWidth={1.35} />
           <span>
-            orbitarium<span className="wordmark-dot">.</span>
+            Arnav<span className="brand-subtitle">SPACE SIMULATION</span>
           </span>
         </a>
         <div className="sidebar-section-label">YOUR OBSERVATORY</div>
@@ -347,7 +379,7 @@ export default function App() {
             <div className="explorer">
               <SolarScene
                 date={date}
-                selected={cameraMode === 'overview' ? null : selected}
+                selected={selected}
                 settings={settings}
                 cameraMode={cameraMode}
                 cameraKey={cameraKey}
@@ -385,9 +417,16 @@ export default function App() {
                   <span />
                   {playing ? 'Time accelerated' : 'Time paused'}
                 </span>
-                <span className="scene-coordinate">HELIOCENTRIC · J2000</span>
+                <span className="scene-coordinate">
+                  {settings.frame === 'body'
+                    ? 'BODY CENTERED'
+                    : settings.frame === 'barycentric'
+                      ? 'APPROX. BARYCENTRIC'
+                      : 'HELIOCENTRIC'}{' '}
+                  · J2000
+                </span>
               </div>
-              <aside className="planet-inspector panel" aria-label="Planet inspector">
+              <DockPanel>
                 <div className="inspector-top">
                   <span>PLANETARY PROFILE</span>
                   <button
@@ -499,10 +538,40 @@ export default function App() {
                   <Focus size={15} /> Focus on {planet.name}
                   <ArrowUpRight size={14} />
                 </button>
-                <span className="source-note">NASA / NSSDC · JPL approximate elements</span>
-              </aside>
+                <span className="source-note">NASA / NSSDC · Astronomy Engine ephemeris</span>
+              </DockPanel>
+              <ExplorerTools
+                date={date}
+                selected={selected}
+                settings={settings}
+                patch={patch}
+                notify={notify}
+                restore={(workspace) => {
+                  setSelected(workspace.selected);
+                  setDate(workspace.date);
+                  setSettings(workspace.settings);
+                  setPlaying(false);
+                  setCameraMode('follow');
+                  setCameraKey((k) => k + 1);
+                  setTimeout(() => {
+                    if (workspace.camera)
+                      dispatchEvent(
+                        new CustomEvent('ass:restore-camera', { detail: workspace.camera }),
+                      );
+                  }, 400);
+                  notify('Workspace restored.');
+                }}
+              />
               {tour && (
                 <div className="tour-card panel">
+                  <progress
+                    aria-label="Journey progress"
+                    max={8}
+                    value={planets.indexOf(planet) + 1}
+                  />
+                  <button className="text-button" onClick={() => selectPlanet('mercury')}>
+                    Restart journey ↺
+                  </button>
                   <div>
                     <span>THE EIGHT WORLDS · {planets.indexOf(planet) + 1} / 8</span>
                     <button
@@ -518,7 +587,7 @@ export default function App() {
                   </strong>
                   <p>
                     {planet.id === 'earth'
-                      ? 'From here, every exploration begins. Our Moon is shown on a schematic orbit.'
+                      ? 'Our Moon follows its calculated geometric orbit. Display sizes and distances may be exaggerated.'
                       : `A year here lasts ${planet.period.toLocaleString()} Earth days. Try orbiting the camera to see another side.`}
                   </p>
                   <button
@@ -570,12 +639,16 @@ export default function App() {
                 <div className="scene-toggles">
                   <button
                     className={settings.orbits ? 'active' : ''}
+                    aria-label="Orbits"
+                    aria-pressed={settings.orbits}
                     onClick={() => patch({ orbits: !settings.orbits })}
                   >
                     <Orbit size={14} /> Orbits
                   </button>
                   <button
                     className={settings.labels ? 'active' : ''}
+                    aria-label="Labels"
+                    aria-pressed={settings.labels}
                     onClick={() => patch({ labels: !settings.labels })}
                   >
                     Aa <span>Labels</span>
@@ -669,9 +742,11 @@ export default function App() {
               <div className="scene-footer">
                 <span>
                   <i />{' '}
-                  {settings.trueScale
-                    ? 'Proportional distances · exaggerated body sizes'
-                    : 'Compressed distances · exaggerated body sizes'}
+                  {settings.bodyScale === 'physical'
+                    ? 'Physical radii · proportional distances'
+                    : settings.trueScale
+                      ? 'Proportional distances · exaggerated body sizes'
+                      : 'Compressed distances · exaggerated body sizes'}
                 </span>
                 <button onClick={() => setModal('credits')}>
                   Model & sources <ArrowUpRight size={12} />
@@ -682,9 +757,13 @@ export default function App() {
               </div>
             </div>
           ) : page === 'gravity' ? (
-            <GravityLab notify={notify} />
+            <GravityLab key={routeHash} notify={notify} />
           ) : page === 'missions' ? (
             <MissionPlanner />
+          ) : page === 'labs' ? (
+            <ScienceLabs />
+          ) : page === 'catalog' ? (
+            <CatalogExplorer />
           ) : (
             <Compare />
           )}
@@ -702,6 +781,77 @@ export default function App() {
             />
           </div>
           <div className="search-results">
+            {savedExperiments()
+              .filter((v) => match(v.name))
+              .map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => {
+                    try {
+                      location.hash = `gravity/shared/${shareConfiguration({ version: 2, bodies: v.bodies })}`;
+                      setModal(null);
+                    } catch (error) {
+                      notify(
+                        error instanceof Error
+                          ? error.message
+                          : 'Export JSON to open this large experiment.',
+                      );
+                    }
+                  }}
+                >
+                  <Atom size={17} />
+                  <span>
+                    {v.name}
+                    <small>Saved experiment · {v.bodies.length} bodies</small>
+                  </span>
+                  <ArrowUpRight size={14} />
+                </button>
+              ))}
+            {[
+              ['Rocket ascent', 'rocket'],
+              ['Black holes and time dilation', 'blackhole'],
+              ['Eclipses and lunar phases', 'eclipse'],
+              ['Planet designer and equilibrium temperature', 'designer'],
+              ['Kepler equal-area laws', 'kepler'],
+              ['Compare experiment sensitivity', 'sensitivity'],
+              ['Ephemeris accuracy and sources', 'validation'],
+            ]
+              .filter(([name]) => match(name))
+              .map(([name, id]) => (
+                <button
+                  key={id}
+                  onClick={() => {
+                    navigate('labs');
+                    location.hash = `labs/${id}`;
+                  }}
+                >
+                  <FlaskConical size={17} />
+                  <span>{name}</span>
+                  <ArrowUpRight size={14} />
+                </button>
+              ))}
+            {stored<{ name: string; selected: string; date: number; settings: SceneSettings }[]>(
+              'ass-workspaces',
+              [],
+            )
+              .filter((w) => match(w.name))
+              .map((w, i) => (
+                <button
+                  key={`workspace-${i}`}
+                  onClick={() => {
+                    setDate(w.date);
+                    setSettings(w.settings);
+                    selectPlanet(w.selected);
+                  }}
+                >
+                  <Compass size={17} />
+                  <span>
+                    {w.name}
+                    <small>Saved workspace</small>
+                  </span>
+                  <ArrowUpRight size={14} />
+                </button>
+              ))}
             {navigation
               .filter((n) => match(n.label))
               .map((n) => (
@@ -766,8 +916,8 @@ export default function App() {
               }}
             />
             <p className="footnote">
-              In proportional mode, 1 AU = 10 scene units. Body sizes remain exaggerated. Switch to
-              Focus to inspect small worlds.
+              In proportional mode, 1 AU = 10 scene units. Physical body radii are available in
+              Observatory instruments. Switch to Focus to inspect small worlds.
             </p>
             <Toggle
               label="Reduce interface & camera motion"
@@ -818,7 +968,7 @@ export default function App() {
             <div className="credits-mark">
               <Orbit size={36} />
               <div>
-                orbitarium.<small>The Universe Is Yours to Explore.</small>
+                Arnav Space Simulation<small>The Universe Is Yours to Explore.</small>
               </div>
             </div>
             <h3>A personal, browser-based observatory</h3>
@@ -828,23 +978,29 @@ export default function App() {
             </p>
             <h3>Models & limitations</h3>
             <p>
-              Planet positions use{' '}
-              <a
-                href="https://ssd.jpl.nasa.gov/planets/approx_pos.html"
-                target="_blank"
-                rel="noreferrer"
-              >
-                NASA/JPL’s approximate Keplerian elements and rates
+              Planet and moon positions use{' '}
+              <a href="https://github.com/cosinekitty/astronomy" target="_blank" rel="noreferrer">
+                Astronomy Engine
               </a>{' '}
-              for 1800–2050. Earth uses the Earth–Moon barycenter. Times use UTC as an approximation
-              to the ephemeris time argument. This is an educational model, not a navigation
-              ephemeris.
+              geometric ephemerides in J2000 ecliptic axes. The Moon and Galilean moons follow
+              calculated orbits. Independent JPL reference residuals are available in Science Labs →
+              Model validation. Orbit path ellipses and apsis/node overlays use JPL approximate
+              elements.
             </p>
             <p>
-              Compressed mode changes radial distance nonlinearly. Body sizes are exaggerated in
-              both modes. Surface maps and rotation are illustrative; prime meridians are not
-              calibrated. The Moon follows a schematic circular orbit. Atmosphere glow is a visual
-              approximation.
+              Educational scale exaggerates radii and compresses distances. Physical mode uses
+              proportional distances and physical radii with logarithmic depth. Planet poles and
+              rotation follow the IAU model. NASA Earth's Greenwich-centered map georeference is
+              verified; other planet map longitude seams have not been independently calibrated.
+              Atmosphere and lighting are visual approximations, not radiative transfer
+              calculations.
+            </p>
+            <p>
+              The sandbox uses Newtonian velocity Verlet, with optional adaptive encounter steps.
+              Merging conserves mass and linear momentum; discarded remnant spin means orbital
+              angular momentum need not be conserved across a collision. Model energy changes are
+              reported separately from integration drift. Mission, rocket, eclipse and black-hole
+              labs disclose their assumptions alongside their controls.
             </p>
             <h3>Data & imagery</h3>
             <p>
@@ -872,18 +1028,22 @@ export default function App() {
               October 2026.
             </p>
             <p>
-              Independent educational project. NASA and JPL do not endorse Orbitarium. Source code
-              is MIT licensed; third-party imagery retains its own license.
+              Independent educational project. NASA and JPL do not endorse Arnav Space Simulation.
+              Source code is MIT licensed. NASA Blue Marble and elevation imagery retain
+              source-specific credit and reuse terms. The GEBCO_08 elevation visualization is
+              provided for credited educational/noncommercial use. HYG star data is CC BY-SA 4.0;
+              Solar System Scope maps are CC BY 4.0. Catalog epochs and parameter references appear
+              in Data Explorer.
             </p>
             <a
               className="credits-github"
-              href="https://github.com/Arnav-Dugad/orbitarium"
+              href="https://github.com/Arnav-Dugad/arnav-space-simulation"
               target="_blank"
               rel="noreferrer"
             >
               Explore the source code <ArrowUpRight size={15} />
             </a>
-            <span className="version">FIRST LIGHT RELEASE · v0.1.0</span>
+            <span className="version">DISCOVERY RELEASE · v0.2.0</span>
           </div>
         </Modal>
       )}

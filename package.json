@@ -1,11 +1,11 @@
 {
-  "name": "orbitarium",
+  "name": "arnav-space-simulation",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/build-offline.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "lint": "eslint .",
@@ -16,9 +16,11 @@
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
+    "astronomy-engine": "^2.1.19",
     "lucide-react": "^1.60.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "satellite.js": "^6.0.2",
     "three": "^0.186.1"
   },
   "devDependencies": {

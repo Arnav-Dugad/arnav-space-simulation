@@ -1,90 +1,67 @@
-# Orbitarium
+# Arnav Space Simulation
 
-**The Universe Is Yours to Explore.**
+**The Universe Is Yours to Explore.** An interactive observatory, physics workbench, mission planner, and collection of scientific laboratories.
 
-A browser-based observatory with interactive 3D planets and real, inspectable physics. No account, paid API, database, or production server is required.
+**[Launch the website](https://arnav-space-simulation.arnavrival12.workers.dev)** · [Public GitHub repository](https://github.com/Arnav-Dugad/arnav-space-simulation)
 
-**[Open Orbitarium](https://orbitarium.arnavrival12.workers.dev)** · [GitHub](https://github.com/Arnav-Dugad/orbitarium)
+![Arnav Space Simulation observatory](docs/observatory-desktop.png)
 
-![Orbitarium desktop observatory](docs/observatory-desktop.png)
+## Release 0.2
 
-## First light release
+- Explore eight planets, the calculated Earth–Moon system and Jupiter's four Galilean moons. Select moon labels for close-ups.
+- Inspect ephemeris positions, calibrated body orientation, Earth city lights, atmospheric rims, Saturn ring shadows, real catalog stars and a close-up 8K Earth map.
+- Switch reference frames, physical or educational scale, scientific overlays and attributed Earth observation layers. Measure separation, relative speed and light travel time.
+- Arrange the inspector, save camera workspaces, find worlds and experiments through command search, export 1–3× PNGs, and download the entire release for offline use.
+- Build gravitational systems with an adaptive velocity-Verlet worker, six-element orbit creation, maneuver previews, undo, touch dragging, rewind and branching history, named experiments and shareable initial conditions.
+- Inspect energy accounting, angular momentum vectors, encounters, timestep behavior, and exported CSV/JSON reports. Try the measured ten-period stable-orbit challenge.
+- Compare Hohmann and bi-elliptic transfers, parking-orbit departure/capture burns, ideal propellant, and ephemeris-based departure-phase crossings.
+- Investigate rocket ascent and staging, Schwarzschild black-hole quantities, global eclipse geometry, planet design, Kepler's equal-area law, sensitivity to initial conditions, and independent ephemeris validation.
+- Explore 21 station-group OMM records with SGP4 ground tracks, 24 curated exoplanets with uncertainties, 40 predicted close approaches and 925 real bright stars. Dates, sources and missing values remain visible.
 
-- Explore all eight planets with local 2K surface maps, Saturn's rings, an illustrative Earth atmosphere, and a schematic Moon.
-- Select a planet, orbit the camera, switch between focused, top, and whole-system views, or take an eight-world tour.
-- Advance or reverse time, jump to dates in 1800–2050, and select compressed or proportional orbital distances.
-- Inspect NASA physical parameters and calculated heliocentric distance and speed.
-- Run a Web Worker N-body sandbox with a velocity-Verlet solver, trajectories, velocity vectors, mass/position/velocity editing, body duplication, and simplified merging collisions.
-- Experiment with Sun–Earth, binary-star, figure-eight, and collision presets. Save locally or import/export validated JSON.
-- Calculate circular, coplanar heliocentric Hohmann transfers and ideal rocket-equation propellant estimates.
-- Compare planetary radius, mass, gravity, escape speed, periods, and temperature.
-- Search with Ctrl/Command K, keep local favorites, adjust quality, and reduce camera/interface motion.
+All 56 requested premium feature areas have an implemented baseline. [The feature matrix](docs/ROADMAP.md) describes each implementation and its limits. A baseline is not a claim of professional simulation fidelity.
 
-This is an initial, functional release of the broader brief. Satellite propagation, black holes, rocket flight, exoplanets, eclipses, and other advanced labs remain planned. See [the feature matrix and backlog](docs/ROADMAP.md).
+## Run and verify
 
-## Run locally
-
-Node.js 24 LTS and npm are recommended.
+Use Node.js 24 and npm:
 
 ```sh
 npm ci
 npm run dev
+npm run lint
+npm test
+npm run build
+npm run test:e2e
 ```
 
-Open the printed localhost URL. The application is React + TypeScript + Three.js, built with Vite. Physics is independent of React; the gravity integrator runs in a dedicated Web Worker. All images and fonts are bundled locally.
+Windows browser tests use installed Chrome. On Linux, install Chromium with `npx playwright install --with-deps chromium`. For production testing, run `npm run preview -- --port 4173`, then set `TEST_BASE_URL=http://127.0.0.1:4173` before running browser tests. The offline test intentionally skips the development server because service workers register only in production.
 
-```sh
-npm run lint       # ESLint, TypeScript and hook rules
-npm test           # scientific reference and conservation checks
-npm run build      # TypeScript check and production bundle
-npm run test:e2e   # Playwright interaction and responsive checks
-```
+CI validates lint, scientific tests, the build and browser workflows on every push and pull request. Production publication is an explicit Cloudflare CLI deployment; GitHub pushes alone do not deploy.
 
-Playwright uses installed Chrome on Windows. On Linux install its browser once with `npx playwright install --with-deps chromium`. To test a deployment, set `TEST_BASE_URL` to its origin before running the browser suite. CI runs lint, physics tests, build, and browser tests on every push and pull request.
+## Scientific models
 
-## Scientific accuracy
+**Solar System:** Astronomy Engine geometric planetary and lunar positions in J2000 ecliptic coordinates, limited by the interface to 1800–2050. Planetary body frames follow its IAU rotation model. Orbit ellipses and apsis/node markers use JPL approximate elements, a separate overlay model. The approximate barycentric render origin includes the Sun and eight planets; it is not a complete solar-system barycenter. Independent saved Horizons vectors provide 45 comparison cases. [Ephemeris documentation](docs/EPHEMERIS.md).
 
-Every view explains its fidelity and assumptions. This is an educational application, not navigation or professional mission-design software.
+**Rendering:** educational mode compresses distances and exaggerates radii/moon separations. Physical mode uses proportional AU distances and actual body radii with logarithmic depth. Atmospheres, illumination intensity and surfaces remain illustrative. Historical textures are not live imagery; the elevation JPEG is not a raw height model. No volumetric radiative-transfer or strong-field ray-tracing claim is made.
 
-**Solar System:** JPL Table 1 Keplerian elements and rates in the J2000 mean ecliptic frame, restricted to 1800–2050. UTC approximates the time argument. Earth uses the Earth–Moon barycenter. Distances are either radially compressed or proportional at 10 scene units/AU. Planet sizes are exaggerated in both modes. Map orientation and prime meridians are illustrative. The Moon's orbit is schematic. Constant render-light intensity preserves visibility across compressed distances; it is not a solar flux model. Close-up mode hides other planets to prevent foreground obstruction.
+**Gravity:** Newtonian point masses, G = 4π² in AU, normalized solar masses and normalized orbital years. Adaptive steps limit encounter crossing and free-fall scales; there is no symplectic adaptive-time or arbitrary-precision guarantee. Mergers preserve mass, linear momentum and volume, discard remnant spin and separately report kinetic loss/model energy changes. History retains 600 states. Loading bodies begins a new experiment; it does not restore elapsed diagnostics. Maneuvers use velocity-prograde, radial and orbit-normal directions; the first two are not generally orthogonal.
 
-**Gravity:** Newtonian gravity in AU, solar masses, and Julian years, with G = 4π² and fixed-step velocity Verlet. No softening or relativistic corrections. Display radii have a minimum pixel size. Collisions merge volume, mass, and momentum; they dissipate kinetic energy. Energy drift is meaningful for non-colliding, unedited systems. Close encounters can require smaller steps. Local saves store the current body state; trails, elapsed time, and diagnostics restart on loading.
+**Missions and laboratories:** circular coplanar impulsive transfer estimates with patched-conic parking burns. Phase crossings are not Lambert launch windows. Rocket flight is a simplified 2D variable-mass central-Earth model with an exponential atmosphere and fixed drag coefficient. Global eclipse calculations do not provide local visibility. Black-hole metrics use Schwarzschild identities and a weak-field deflection approximation; the disk is cinematic. Planet equilibrium temperature is not climate prediction. Sensitivity traces are not a Lyapunov exponent. [Model validation and limits](docs/SCIENCE_VALIDATION.md).
 
-**Missions:** two instantaneous heliocentric burns between circular, coplanar planetary orbits. Excludes launch, sphere-of-influence transitions, planetary capture, perturbations, actual departure windows, and low-thrust dynamics. Isp is treated as an ideal impulse parameter even at high values; a Hohmann maneuver assumes impulsive burns. Phase angle is the required ideal initial geometry, not a current launch opportunity. The transfer graphic compresses distances; its marker follows time through the physical transfer's eccentric anomaly.
+**Catalogs:** bundled dated snapshots, not continuously refreshed feeds. Satellite extrapolation degrades away from its element epoch; asteroid approach uncertainty is not an impact probability. Exoplanet missing measurements remain null. Star positions remain J2000 without current-date proper motion. [Complete data provenance](docs/DATA_SOURCES.md).
 
-## Sources and licenses
+## Deployment
 
-- [NASA/JPL orbital elements](https://ssd.jpl.nasa.gov/planets/approx_pos.html)
-- [NASA/NSSDC physical parameters](https://nssdc.gsfc.nasa.gov/planetary/factsheet/)
-- [Solar System Scope maps](https://www.solarsystemscope.com/textures/) — CC BY 4.0, based on NASA imagery; some colors and terrain were reconstructed by their creators.
-
-Application code: [MIT](LICENSE). Images and fonts retain their own licenses. Full attribution: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). No NASA endorsement is implied.
-
-## Deploy to Cloudflare
-
-This project uses [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/), with SPA routing configured in `wrangler.jsonc`.
+Cloudflare Workers Static Assets serves `dist`, with SPA fallback and response headers. No database, application secrets or paid runtime API is required.
 
 ```sh
 npx wrangler login
 npm run deploy
 ```
 
-Use an unused Worker name or your existing Orbitarium Worker. The deployment command builds before uploading. No bindings or secrets are required by the application. Authentication remains in the Cloudflare CLI's account store and must never be committed. Cloudflare Pages is also possible with build command `npm run build`, output `dist`; the `_headers` file carries caching and response headers.
+The configured Worker is `arnav-space-simulation`. The former `orbitarium` Worker can be deployed as a permanent redirect using `npx wrangler deploy --config wrangler.redirect.jsonc`. Do not delete the old Worker before the new origin is verified. To automate publication later, connect the repository through Cloudflare Workers Builds with build `npm run build` and deploy `npx wrangler deploy`.
 
-For automatic production updates, connect this GitHub repository in Cloudflare Workers Builds with build command `npm run build` and deploy command `npx wrangler deploy`. The initial CLI deployment does not automatically create that Git integration.
+## Licenses and structure
 
-Vercel can serve the same Vite output: import the repository, choose Vite, build `npm run build`, output `dist`. The application uses hash navigation and needs no server-side route rewrites.
+Application code is [MIT](LICENSE). Images, fonts and data have separate terms: Solar System Scope CC BY 4.0, HYG derivative data CC BY-SA 4.0, NASA media guidance and original GEBCO_08 educational/noncommercial terms. [Full credits](THIRD_PARTY_NOTICES.md). No source agency endorsement is implied.
 
-## Project structure
-
-```text
-src/components/   Accessible dialog, metric, range, and toggle controls
-src/data/         Typed, attributed planetary reference data
-src/scenes/       Three.js scene and camera lifecycle
-src/simulation/   Independent Kepler, transfer, and N-body engines
-src/workers/      Gravity computation and diagnostics
-src/pages/        Gravity, mission, and comparison experiences
-src/tests/        Physics and import validation tests
-e2e/             Browser interactions and responsive checks
-docs/            Screenshots, verification notes, feature status, roadmap
-```
+`src/scenes` owns WebGL resources; `src/simulation` contains testable models; `src/workers` runs gravity; `src/pages` contains the labs; `public/data` holds attributed snapshots; `e2e` checks complete browser workflows. [Verification notes](docs/VERIFICATION.md).

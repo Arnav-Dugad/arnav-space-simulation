@@ -14,17 +14,27 @@ import {
 } from 'lucide-react';
 import { preset, validateBodies, diagnostics, G, type Body } from '../simulation/nbody';
 import { Metric, Range, Toggle } from '../components/UI';
-interface Snapshot {
-  bodies: Body[];
-  time: number;
-  energy: number;
-  angularMomentum: number;
-  com: [number, number, number];
-  drift: number;
-  error?: string;
-}
+import GravityWorkbench, {
+  type GravitySnapshot as Snapshot,
+  type GravitySample,
+} from '../components/GravityWorkbench';
+import { encounter } from '../simulation/advanced';
+import { readConfiguration } from '../utils/export';
 function initialSnapshot(bodies: Body[]): Snapshot {
-  return { bodies, time: 0, drift: 0, ...diagnostics(bodies) };
+  return {
+    bodies,
+    time: 0,
+    drift: 0,
+    collisionDelta: 0,
+    kineticLoss: 0,
+    collisions: 0,
+    effectiveDt: 0,
+    substeps: 0,
+    historyIndex: 0,
+    historyLength: 1,
+    encounter: encounter(bodies),
+    ...diagnostics(bodies),
+  };
 }
 export default function GravityLab({ notify }: { notify: (text: string) => void }) {
   const [snapshot, setSnapshot] = useState<Snapshot>(() => initialSnapshot(preset('solar')));
@@ -36,6 +46,12 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
   const [zoom, setZoom] = useState(150);
   const [selected, setSelected] = useState('earth');
   const [showVectors, setShowVectors] = useState(false);
+  const [adaptive, setAdaptive] = useState(true),
+    [samples, setSamples] = useState<GravitySample[]>([]),
+    [revision, setRevision] = useState(0),
+    [autoSlow, setAutoSlow] = useState(true);
+  const undoStates = useRef<Body[][]>([]),
+    drag = useRef<{ id: string; before: Body[] } | null>(null);
   const worker = useRef<Worker | null>(null),
     busy = useRef(false),
     canvas = useRef<HTMLCanvasElement>(null),
@@ -46,7 +62,7 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
     state.current = { snapshot, selected, zoom, showVectors };
   });
   useEffect(() => {
-    const w = new Worker(new URL('../workers/gravity.worker.ts', import.meta.url), {
+    const w = new Worker(new URL('../workers/gravity-v2.worker.ts', import.meta.url), {
       type: 'module',
     });
     worker.current = w;
@@ -58,13 +74,36 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
         return;
       }
       setSnapshot(event.data);
+      const s = event.data;
+      setSamples((old) => [
+        ...old.slice(-599),
+        {
+          time: s.time,
+          energy: s.energy,
+          drift: s.drift,
+          angular: s.angularMomentum,
+          distance: s.encounter.distance,
+          speed: s.encounter.speed,
+        },
+      ]);
     };
     w.onerror = () => {
       busy.current = false;
       setPlaying(false);
       notify('The physics worker failed. Reload to restart.');
     };
-    w.postMessage({ type: 'reset', bodies: preset('solar') });
+    let initial = preset('solar');
+    try {
+      const shared = location.hash.split('/shared/')[1];
+      if (shared) {
+        const data = readConfiguration(shared) as { bodies: unknown };
+        initial = validateBodies(data.bodies);
+        notify('Shared experiment loaded. Units: AU, solar masses, normalized orbital years.');
+      }
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Invalid share link.');
+    }
+    w.postMessage({ type: 'reset', bodies: initial });
     return () => {
       w.terminate();
       worker.current = null;
@@ -75,12 +114,20 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
   useEffect(() => {
     if (!playing) return;
     const interval = setInterval(() => {
-      if (busy.current) return;
+      if (busy.current || document.hidden) return;
       busy.current = true;
-      worker.current?.postMessage({ type: 'step', dt, count: speed, merge });
+      const nearest = encounter(state.current.snapshot.bodies);
+      const close = autoSlow && nearest.distance < 0.15;
+      worker.current?.postMessage({
+        type: 'step',
+        dt,
+        count: close ? Math.min(speed, 2) : speed,
+        merge,
+        adaptive,
+      });
     }, 33);
     return () => clearInterval(interval);
-  }, [playing, dt, speed, merge]);
+  }, [playing, dt, speed, merge, adaptive, autoSlow]);
   useEffect(() => {
     const c = canvas.current!,
       ctx = c.getContext('2d')!;
@@ -184,15 +231,31 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
       ctx.moveTo(cx, cy - 4);
       ctx.lineTo(cx, cy + 4);
       ctx.stroke();
-      frame = requestAnimationFrame(draw);
+      if (!document.hidden) frame = requestAnimationFrame(draw);
     }
     frame = requestAnimationFrame(draw);
+    const visibility = () => {
+      cancelAnimationFrame(frame);
+      if (!document.hidden) frame = requestAnimationFrame(draw);
+    };
+    document.addEventListener('visibilitychange', visibility);
     return () => {
       cancelAnimationFrame(frame);
+      document.removeEventListener('visibilitychange', visibility);
       resize.disconnect();
     };
   }, []);
   const reset = (bodies: Body[]) => {
+    try {
+      validateBodies(bodies);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Invalid system.');
+      return;
+    }
+    setRevision((v) => v + 1);
+    undoStates.current.push(structuredClone(snapshot.bodies));
+    if (undoStates.current.length > 50) undoStates.current.shift();
+    setSamples([]);
     setPlaying(false);
     history.current.clear();
     busy.current = false;
@@ -225,7 +288,7 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
     );
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'orbitarium-universe.json';
+    a.download = 'arnav-space-simulation-universe.json';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -264,6 +327,46 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
             ref={canvas}
             className="gravity-canvas"
             aria-label="N-body simulation. Click a body to select it."
+            onPointerDown={(e) => {
+              const r = e.currentTarget.getBoundingClientRect(),
+                x = (e.clientX - r.left - r.width / 2) / zoom,
+                y = -(e.clientY - r.top - r.height / 2) / zoom;
+              const nearest = [...snapshot.bodies].sort(
+                (a, b) => Math.hypot(a.p[0] - x, a.p[1] - y) - Math.hypot(b.p[0] - x, b.p[1] - y),
+              )[0];
+              if (nearest && Math.hypot(nearest.p[0] - x, nearest.p[1] - y) < 20 / zoom) {
+                setPlaying(false);
+                setSelected(nearest.id);
+                drag.current = { id: nearest.id, before: structuredClone(snapshot.bodies) };
+                e.currentTarget.setPointerCapture(e.pointerId);
+              }
+            }}
+            onPointerMove={(e) => {
+              if (!drag.current) return;
+              const r = e.currentTarget.getBoundingClientRect(),
+                x = (e.clientX - r.left - r.width / 2) / zoom,
+                y = -(e.clientY - r.top - r.height / 2) / zoom;
+              setSnapshot((s) => ({
+                ...s,
+                bodies: s.bodies.map((b) =>
+                  b.id === drag.current!.id ? { ...b, p: [x, y, b.p[2]] } : b,
+                ),
+              }));
+            }}
+            onPointerUp={() => {
+              if (drag.current) {
+                const before = drag.current.before;
+                drag.current = null;
+                reset(snapshot.bodies);
+                undoStates.current[undoStates.current.length - 1] = before;
+              }
+            }}
+            onPointerCancel={() => {
+              if (drag.current) {
+                setSnapshot(initialSnapshot(drag.current.before));
+                drag.current = null;
+              }
+            }}
             onClick={(e) => {
               const r = e.currentTarget.getBoundingClientRect(),
                 x = (e.clientX - r.left - r.width / 2) / zoom,
@@ -377,6 +480,21 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
                 </div>
               </div>
               <label className="field">
+                Body name
+                <input
+                  aria-label="Body name"
+                  maxLength={60}
+                  value={body.name}
+                  onChange={(e) =>
+                    reset(
+                      snapshot.bodies.map((b) =>
+                        b.id === body.id ? { ...b, name: e.target.value } : b,
+                      ),
+                    )
+                  }
+                />
+              </label>
+              <label className="field">
                 Mass (solar masses)
                 <input
                   aria-label="Body mass"
@@ -457,7 +575,10 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
         <button
           onClick={() => {
             try {
-              localStorage.setItem('orbitarium-universe', JSON.stringify(snapshot.bodies));
+              localStorage.setItem(
+                'arnav-space-simulation-universe',
+                JSON.stringify(snapshot.bodies),
+              );
               notify('Universe saved on this device.');
             } catch {
               notify('Device storage is unavailable. Export JSON instead.');
@@ -469,7 +590,7 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
         <button
           onClick={() => {
             try {
-              const data = localStorage.getItem('orbitarium-universe');
+              const data = localStorage.getItem('arnav-space-simulation-universe');
               if (!data) throw new Error('No saved universe yet.');
               reset(validateBodies(JSON.parse(data)));
               notify('Saved universe loaded.');
@@ -506,13 +627,40 @@ export default function GravityLab({ notify }: { notify: (text: string) => void 
           }}
         />
       </div>
+      <GravityWorkbench
+        revision={revision}
+        autoSlow={autoSlow}
+        setAutoSlow={setAutoSlow}
+        snapshot={snapshot}
+        samples={samples}
+        selected={selected}
+        reset={reset}
+        rewind={(index) => {
+          setPlaying(false);
+          history.current.clear();
+          worker.current?.postMessage({ type: 'rewind', index });
+        }}
+        undo={() => {
+          const previous = undoStates.current.pop();
+          if (previous) {
+            reset(previous);
+            undoStates.current.pop();
+            notify('Previous body state restored.');
+          } else notify('No earlier edits to restore.');
+        }}
+        adaptive={adaptive}
+        setAdaptive={setAdaptive}
+        notify={notify}
+        start={() => setPlaying(true)}
+      />
       <div className="callout">
         <Info size={16} />
         <p>
           Newtonian point-mass gravity, no softening. Bodies have exaggerated display sizes;
           collision radii use AU. Collisions merge mass and momentum, dissipating kinetic energy.
-          Edits pause and restart diagnostics. ¹ M☉·AU²/yr². ² M☉·AU²/yr. Close encounters may
-          require a smaller timestep.
+          Remnant spin is discarded; orbital angular momentum can change during merging. Edits pause
+          and restart diagnostics. Time uses normalized orbital years, G = 4π². ¹ M☉·AU²/yr². ²
+          M☉·AU²/yr. Close encounters may require a smaller timestep.
         </p>
       </div>
     </div>

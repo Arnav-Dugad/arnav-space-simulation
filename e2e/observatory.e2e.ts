@@ -60,7 +60,7 @@ test('Gravity worker advances, edits, duplicates, removes, saves, loads and expo
   await expect(page.locator('.body-chips button')).toHaveCount(2);
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Export JSON', exact: true }).click();
-  expect((await download).suggestedFilename()).toBe('orbitarium-universe.json');
+  expect((await download).suggestedFilename()).toBe('arnav-space-simulation-universe.json');
   await page.locator('input[type=file]').setInputFiles({
     name: 'invalid.json',
     mimeType: 'application/json',

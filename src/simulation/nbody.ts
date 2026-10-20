@@ -1,5 +1,5 @@
 import type { Vec3 } from './orbital';
-// Normalized units: AU, solar masses, Julian years. G = 4π² AU³ M☉⁻¹ yr⁻².
+// Normalized units: AU, solar masses, orbital years. G = 4π² AU³ M☉⁻¹ yr⁻².
 export const G = 4 * Math.PI * Math.PI;
 export interface Body {
   id: string;
@@ -13,6 +13,9 @@ export interface Body {
 export interface Diagnostics {
   energy: number;
   angularMomentum: number;
+  angularVector: Vec3;
+  kinetic: number;
+  potential: number;
   com: Vec3;
 }
 export function validateBodies(input: unknown): Body[] {
@@ -64,6 +67,9 @@ function accelerations(bodies: Body[], softening: number): Vec3[] {
   return a;
 }
 export function step(bodies: Body[], dt: number, merge = true, softening = 0) {
+  let collisionDelta = 0,
+    kineticLoss = 0,
+    collisions = 0;
   const a = accelerations(bodies, softening);
   bodies.forEach((b, i) => {
     for (let k = 0; k < 3; k++) {
@@ -81,14 +87,21 @@ export function step(bodies: Body[], dt: number, merge = true, softening = 0) {
         const b = bodies[i],
           c = bodies[j];
         if (Math.hypot(...b.p.map((v, k) => v - c.p[k])) < b.radius + c.radius) {
+          const before = diagnostics(bodies, softening).energy;
+          const relative = b.v.map((v, k) => v - c.v[k]);
+          kineticLoss +=
+            ((0.5 * b.mass * c.mass) / (b.mass + c.mass)) * relative.reduce((s, v) => s + v * v, 0);
           const m = b.mass + c.mass;
           b.p = b.p.map((v, k) => (v * b.mass + c.p[k] * c.mass) / m) as Vec3;
           b.v = b.v.map((v, k) => (v * b.mass + c.v[k] * c.mass) / m) as Vec3;
           b.mass = m;
           b.radius = Math.cbrt(b.radius ** 3 + c.radius ** 3);
           bodies.splice(j, 1);
+          collisionDelta += diagnostics(bodies, softening).energy - before;
+          collisions++;
         }
       }
+  return { collisionDelta, kineticLoss, collisions };
 }
 export function diagnostics(bodies: Body[], softening = 0): Diagnostics {
   let energy = 0,
@@ -108,7 +121,15 @@ export function diagnostics(bodies: Body[], softening = 0): Diagnostics {
       if (d > 0) energy -= (G * b.mass * bodies[j].mass) / d;
     }
   }
-  return { energy, angularMomentum: Math.hypot(...L), com: com.map((v) => v / mass) as Vec3 };
+  const kinetic = bodies.reduce((s, b) => s + 0.5 * b.mass * b.v.reduce((a, v) => a + v * v, 0), 0);
+  return {
+    energy,
+    kinetic,
+    potential: energy - kinetic,
+    angularVector: L,
+    angularMomentum: Math.hypot(...L),
+    com: com.map((v) => v / mass) as Vec3,
+  };
 }
 export function preset(name: string): Body[] {
   if (name === 'binary')

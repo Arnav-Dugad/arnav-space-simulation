@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "title": "Blue Marble: Next Generation, January 2004",
+    "source": "NASA Earth Observatory / Goddard Space Flight Center",
+    "sourceUrl": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-base/january/world.200401.3x21600x10800.jpg",
+    "documentationUrl": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-map/",
+    "retrievedAt": "2026-10-20T08:41:33.356Z",
+    "epoch": "January 2004 composite",
+    "attribution": "NASA Earth Observatory / NASA Goddard Space Flight Center, Reto St?ckli and Robert Simmon, with MODIS teams",
+    "license": "NASA imagery use guidance; credit NASA and do not imply endorsement",
+    "licenseUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+    "sourceSha256": "c2f2c80a352518cfea23d462dad6f6e778375ddd74bbec5786bcfc85cc49c61d",
+    "notes": [
+      "Historical surface composite, not current observations.",
+      "Modified: reduced from 21600x10800 to 8192x4096 using high-quality bicubic resampling, JPEG quality 90."
+    ],
+    "recordCount": 1,
+    "projection": {
+      "name": "Equirectangular geographic WGS 84",
+      "epsg": 4326,
+      "northDeg": 90,
+      "southDeg": -90,
+      "westDeg": -180,
+      "eastDeg": 180,
+      "centerLongitudeDeg": 0,
+      "seamLongitudeDeg": 180,
+      "northAtTop": true,
+      "eastIncreasesRight": true,
+      "verification": {
+        "sourceUrl": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/bmng-base/january/world.200401.3x5400x2700_geo.tif",
+        "method": "Read original companion GeoTIFF tags 33550, 33922, 34735 from its first 65536 bytes.",
+        "rasterWidth": 5400,
+        "rasterHeight": 2700,
+        "pixelScaleDeg": [
+          0.0666666667,
+          0.0666666667
+        ],
+        "upperLeftLonLatDeg": [
+          -180.00000000034998,
+          90.00000000005
+        ]
+      }
+    }
+  },
+  "records": [
+    {
+      "path": "/textures/earth_high.jpg",
+      "width": 8192,
+      "height": 4096,
+      "format": "image/jpeg",
+      "bytes": 3855875,
+      "sha256": "764b0daf62d1b6f2d5432572acf423791f10da7c285a663566fa0942bf88dd66"
+    }
+  ]
+}

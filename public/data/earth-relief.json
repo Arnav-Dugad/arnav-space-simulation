@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "schemaVersion": 1,
+    "title": "Earth land topography visualization, GEBCO_08",
+    "source": "NASA Earth Observatory / GEBCO / British Oceanographic Data Centre",
+    "sourceUrl": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/bmng/topography/gebco_08_rev_elev_5400x2700.jpg",
+    "documentationUrl": "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps/",
+    "retrievedAt": "2026-10-20T09:12:41.715Z",
+    "epoch": null,
+    "attribution": "Imagery by Jesse Allen, NASA Earth Observatory, using GEBCO data produced by the British Oceanographic Data Centre.",
+    "license": "GEBCO_08 derivative educational/research/noncommercial reproduction permitted with credit, plus NASA media guidance. Commercial use requires consulting original GEBCO_08 terms; this asset is outside the code MIT license.",
+    "licenseUrl": "https://www.bodc.ac.uk/data/hosted_data_systems/gebco_gridded_bathymetry_data/documents/gebco_08.pdf",
+    "notes": [
+      "Unmodified downloaded JPEG; a genuine elevation visualization, not a normal map or current terrain observation.",
+      "NASA documents image values scaled to 0-6400 meters. JPEG quantization/clipping and source resolution prevent survey-grade elevation measurements.",
+      "Use as a labelled topography overlay. Any bump or displacement exaggeration must be labelled separately.",
+      "The provider does not state a single acquisition epoch for the compiled elevation dataset."
+    ],
+    "recordCount": 1,
+    "sourceSha256": "97828a87bcb6549a527232455e478c5f9e4556f761b37d620a46446da17593ab"
+  },
+  "records": [
+    {
+      "path": "/textures/earth_relief.jpg",
+      "width": 5400,
+      "height": 2700,
+      "bytes": 1244508,
+      "format": "image/jpeg",
+      "sha256": "97828a87bcb6549a527232455e478c5f9e4556f761b37d620a46446da17593ab"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ export default defineConfig({
   use: {
     baseURL: process.env.TEST_BASE_URL ?? 'http://127.0.0.1:5173',
     headless: true,
+    serviceWorkers: 'block',
     channel: process.platform === 'win32' ? 'chrome' : undefined,
     viewport: { width: 1440, height: 960 },
     screenshot: 'only-on-failure',
